@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
@@ -11,26 +10,36 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  DateTime _dateTime = DateTime.now();
+  String _date = '';
+  String _time = '';
   String _timeZone = 'WIB';
-  String _timeZoneOffset = '+7';
-
-  void _setTimeZone(String timeZone, String timeZoneOffset) {
-    setState(() {
-      _timeZone = timeZone;
-      _timeZoneOffset = timeZoneOffset;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    Timer.periodic(const Duration(seconds: 1), (Timer t) => _getCurrentTime());
+    _updateTime();
   }
 
-  void _getCurrentTime() {
+  void _updateTime() {
+    var time = DateTime.now().toUtc();
+    switch(_timeZone) {
+      case 'WIB':
+        time = time.add(const Duration(hours: 7));
+        break;
+      case 'WITA':
+        time = time.add(const Duration(hours: 8));
+        break;
+      case 'WIT':
+        time = time.add(const Duration(hours: 9));
+        break;
+      default:
+        break;
+    }
+    var formatDate = DateFormat('EEEE, d MMMM y');
+    var formatTime = DateFormat('HH:mm:ss');
     setState(() {
-      _dateTime = DateTime.now();
+      _date = formatDate.format(time);
+      _time = formatTime.format(time);
     });
   }
 
@@ -46,7 +55,7 @@ class _CalendarPageState extends State<CalendarPage> {
         children: [
           const SizedBox(height: 5),
           Text(
-            DateFormat('EEEE, d MMMM y').format(_dateTime),
+            '$_date',
             style: const TextStyle(fontSize: 24),
           ),
           TableCalendar(
@@ -58,13 +67,13 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
           const SizedBox(height: 10),
           Text(
-            DateFormat('HH:mm:ss').format(_dateTime),
+            '$_time',
             style: const TextStyle(fontSize: 50),
           ),
           const SizedBox(height: 10),
           Center(
             child: Text(
-              '$_timeZone (GMT $_timeZoneOffset)',
+              '$_timeZone',
               style: const TextStyle(fontSize: 15),
             ),
           ),
@@ -75,37 +84,39 @@ class _CalendarPageState extends State<CalendarPage> {
               Column(
                 children: [
                   ElevatedButton(
-                      onPressed: () => _setTimeZone('WIB', '+7'),
+                      onPressed: () {
+                        setState(() {
+                          _timeZone = 'WIB';
+                        });
+                        _updateTime();
+                      },
                       child: const Text('WIB'),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    DateFormat().add_jms().format(DateTime.now().toUtc().add(const Duration(hours: 7))),
-                  ),
                 ],
               ),
               Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () => _setTimeZone('WITA', '+8'),
+                    onPressed: () {
+                      setState(() {
+                        _timeZone = 'WITA';
+                      });
+                      _updateTime();
+                    },
                     child: const Text('WITA'),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    DateFormat().add_jms().format(DateTime.now().toUtc().add(const Duration(hours: 8))),
-                  ),
-
                 ],
               ),
               Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () => _setTimeZone('WIT', '+9'),
+                    onPressed: () {
+                      setState(() {
+                        _timeZone = 'WIT';
+                      });
+                      _updateTime();
+                    },
                     child: const Text('WIT'),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    DateFormat().add_jms().format(DateTime.now().toUtc().add(const Duration(hours: 9))),
                   ),
                 ],
               ),
